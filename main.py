@@ -15,9 +15,6 @@ import subprocess
 
 session = requests.Session()
 
-import matplotlib.pyplot as plt
-
-
 vk_session = vk_api.VkApi(token='72ebbd071624448cf812128336bce2a79eb6d030d47683496f212a8055a239819c169bdfec82748dfddad')
 
 longpoll = VkBotLongPoll(vk_session, 202973017)
