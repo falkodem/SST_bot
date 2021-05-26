@@ -14,7 +14,6 @@ import tkinter
 import numpy as np
 import subprocess
 
-
 session = requests.Session()
 vk_session = vk_api.VkApi(token='72ebbd071624448cf812128336bce2a79eb6d030d47683496f212a8055a239819c169bdfec82748dfddad')
 longpoll = VkBotLongPoll(vk_session, 202973017)
@@ -32,19 +31,37 @@ keyboard.add_line()
 keyboard.add_vkpay_button(hash="action=transfer-to-group&group_id=183415444")
 
 LongPoll_conn_data = vk.messages.getLongPollServer(need_pts=0,
-                                  group_id=202973017,
-                                  lp_version=3)
+                                                   group_id=202973017,
+                                                   lp_version=3)
+
 
 ###############################################################################################################
 
 
-def write_msg(user_id, message):
-    Lsvk.messages.send(
-        user_id=user_id,
-        message=message,
-        random_id=get_random_id()
-    )
+def get_image():
+    upload = vk_api.VkUpload(vk)
+    photo = upload.photo_messages('./image.jpg')
+    owner_id = photo[0]['owner_id']
+    photo_id = photo[0]['id']
+    access_key = photo[0]['access_key']
+    attachment = f'photo{owner_id}_{photo_id}_{access_key}'
+    return attachment
 
+
+def write_msg(user_id, message, attach=None):
+    if attach is None:
+        Lsvk.messages.send(
+            user_id=user_id,
+            message=message,
+            random_id=get_random_id()
+        )
+    else:
+        Lsvk.messages.send(
+            user_id=user_id,
+            message=message,
+            random_id=get_random_id(),
+            attachment=attach
+        )
 
 
 class VKBot:
@@ -66,14 +83,18 @@ class VKBot:
     def _get_time(self):
         request = requests.get("https://my-calend.ru/date-and-time-today")
         b = bs4.BeautifulSoup(request.text, "html.parser")
-        return self._clean_all_tag_from_str(str(b.select(".page")[0].findAll("h2")[1])).split()[1]
+        date_time_list = self._clean_all_tag_from_str(str(b.select(".page")[0].findAll("h2")[0])).replace("В", " В") \
+            .replace(", ", " ").split()
+        date = " ".join(date_time_list[0:4])
+        day_of_week = date_time_list[4]
+        time = " ".join(date_time_list[5:])
+        return date+"\n"+day_of_week+"\n"+time
 
     # Получение погоды
-    def _get_weather(city: str = "москва") -> list:
+    def _get_weather(self, city: str = "москва") -> list:
         request = requests.get("https://sinoptik.com.ru/погода-" + city)
         b = bs4.BeautifulSoup(request.text, "html.parser")
-
-        p3 = b.select('.temperature .p3')
+        p3 = b.select('temperature')
         weather1 = p3[0].getText()
         p4 = b.select('.temperature .p4')
         weather2 = p4[0].getText()
@@ -129,7 +150,7 @@ class VKBot:
 
         # Пока
         elif message.upper() == self._COMMANDS[3]:
-            return f"Бывай!, {self._USERNAME}!"
+            return f"Бывай, {self._USERNAME}!"
 
         else:
             return "Не понимаю о чем вы..."
@@ -138,7 +159,7 @@ class VKBot:
 
         audio_bytes = requests.get(message_url).content
         audio_mp3 = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3").set_frame_rate(16000)
-        audio_samples = np.array(audio_mp3.get_array_of_samples())  # для графика например, тупо аудиомассив
+        # audio_samples = np.array(audio_mp3.get_array_of_samples())  # для графика например, тупо аудиомассив
         filename = './audio.wav'
         audio_mp3.export(filename, format="wav")
 
@@ -159,22 +180,16 @@ print("Server started")
 for event in Lslongpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW and event.to_me:
         bot = VKBot(event.user_id)
-        print(event.attachments)
-
         if event.text != "":
             write_msg(event.user_id, bot.text_message(event.text))
         else:
             try:
                 event.attachments['attach1_kind']
             except KeyError:
-                Lsvk.messages.send(
-                    user_id=event.user_id,
-                    message="рро",
-                    attachment='photo77910182_457245306',
-                    random_id=get_random_id()
-                )
+                write_msg(event.user_id, "Я не работаю с такими запросами. Пока что", get_image())
+
             else:
                 write_msg(event.user_id, "Перевожу..")
                 audiofile_url = json.loads(event.attachments['attachments'])[0]['audio_message']['link_mp3']
-                 # if event.from_user:
+                # if event.from_user:
                 write_msg(event.user_id, bot.audio_message(audiofile_url))
