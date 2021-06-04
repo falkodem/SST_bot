@@ -1,0 +1,41 @@
+#!/bin/bash
+mkdir ~/deepspeech
+cd ~/deepspeech
+
+sudo apt-get install -y build-essential libssl-dev zlib1g-dev libbz2-dev \
+libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
+
+curl https://pyenv.run | bash
+
+#команды выше выводит, что надо добавить: 
+#xport PATH="/home/falkodem/.pyenv/bin:$PATH"
+#eval "$(pyenv init -)"
+#eval "$(pyenv virtualenv-init -)"	
+#в .bashrc
+#Добавил в самое начало. Работает вроде.
+
+pyenv install 3.7.10
+pyenv virtualenv 3.7.10 deepspeech
+pyenv local deepspeech
+
+!wget https://github.com/GeorgeFedoseev/DeepSpeech/releases/download/1.0/DeepSpeech-ru-v1.0-tensorflow_pb_models.tar.gz
+!wget https://github.com/GeorgeFedoseev/DeepSpeech/releases/download/1.0/DeepSpeech-ru-v1.0-language_model.tar.gz
+
+!tar -xvf DeepSpeech-ru-v1.0-tensorflow_pb_models.tar.gz
+!tar -xvf DeepSpeech-ru-v1.0-language_model.tar.gz
+
+#достаю из папок файлы
+
+cd ./DeepSpeech-ru-v1.0-language_model
+mv alphabet.txt lm.binary trie ../
+cd ../DeepSpeech-ru-v1.0-tensorflow_pb_models
+!mv output_graph.pb ../
+cd ..
+
+pip install tensorflow
+pip install deepspeech==0.2.0a8
+
+deepspeech --model output_graph.pb --alphabet alphabet.txt --lm lm.binary --trie trie --audio kurs.wav
+
+echo `deepspeech --model output_graph.pb --alphabet alphabet.txt --lm lm.binary --trie trie --audio kurs.wav` > jopa.txt

@@ -169,10 +169,15 @@ class VKBot:
         command = "deepspeech --model output_graph.pb --alphabet alphabet.txt --lm lm.binary --trie trie --audio " + filename
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
         output, error = process.communicate()
-        if isinstance(output, str):
-            return output
+        output = output.decode('utf-8')
+        if output == "\n":
+            return "Я не услышал тут речи"
         else:
-            return "Не понимаю. \nПохоже на эльфийский"
+            return output
+        # if isinstance(output, str):
+        #     return output
+        # else:
+        #     return "Не понимаю. \nПохоже на эльфийский"
 
 
 print("Server started")
