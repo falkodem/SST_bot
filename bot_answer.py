@@ -3,7 +3,8 @@ import io
 import bs4
 import subprocess
 import requests
-
+import librosa
+import soundfile as sf
 
 class VKBot:
     def __init__(self, user_id):
@@ -99,10 +100,16 @@ class VKBot:
     def audio_message(self, message_url):
 
         audio_bytes = requests.get(message_url).content
-        audio_mp3 = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3").set_frame_rate(16000)
-        # audio_samples = np.array(audio_mp3.get_array_of_samples())  # для графика например, тупо аудиомассив
+        with open('audio.mp3', 'wb') as f:
+            f.write(audio_bytes)
+        y, sr = librosa.load('audio.mp3')
+        y_16k = librosa.resample(y, sr, 16000)
         filename = './audio.wav'
-        audio_mp3.export(filename, format="wav")
+        sf.write(filename, y_16k, 16000)
+        # audio_mp3 = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3").set_frame_rate(16000)
+        # # audio_samples = np.array(audio_mp3.get_array_of_samples())  # для графика например, тупо аудиомассив
+        # filename = './audio.wav'
+        # audio_mp3.export(filename, format="wav")
 
         return self.transcribe(filename)
 
