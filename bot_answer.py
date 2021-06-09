@@ -106,6 +106,7 @@ class VKBot:
         y_16k = librosa.resample(y, sr, 16000)
         filename = './audio.wav'
         sf.write(filename, y_16k, 16000)
+        # librosa.output.write_wav(filename, y_16k, 16000)
         # audio_mp3 = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3").set_frame_rate(16000)
         # # audio_samples = np.array(audio_mp3.get_array_of_samples())  # для графика например, тупо аудиомассив
         # filename = './audio.wav'
