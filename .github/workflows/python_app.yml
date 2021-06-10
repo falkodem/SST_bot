@@ -16,5 +16,5 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
           heroku container:login
-          heroku container:push -a deepspec-bot web
-          heroku container:release -a deepspec-bot web
+          heroku container:push -a deepspec-bot worker
+          heroku container:release -a deepspec-bot worker
