@@ -115,7 +115,8 @@ class VKBot:
         return self.transcribe(filename)
 
     def transcribe(self, filename):
-        command = "deepspeech --model output_graph.pb --alphabet alphabet.txt --lm lm.binary --trie trie --audio " + filename
+        # command = "deepspeech --model output_graph.pb --alphabet alphabet.txt --lm lm.binary --trie trie --audio " + filename
+        command = "deepspeech --model ./DeepSpeech-ru-v1.0-tensorflow_pb_models/output_graph.pb --alphabet ./DeepSpeech-ru-v1.0-language_model/alphabet.txt --lm ./DeepSpeech-ru-v1.0-language_model/lm.binary --trie ./DeepSpeech-ru-v1.0-language_model/trie --audio " + filename
         process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
         output, error = process.communicate()
         output = output.decode('utf-8')
