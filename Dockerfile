@@ -3,4 +3,4 @@ RUN apt update && apt -y install gettext-base && apt -y install libsndfile1 && a
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-CMD ["sh", "/run.sh"]
+CMD ["bash",'-a', "/run.sh"]
