@@ -10,7 +10,7 @@ from bot_answer import vk_bot
 
 session = requests.Session()
 
-vk_session = vk_api.VkApi(token='72ebbd071624448cf812128336bce2a79eb6d030d47683496f212a8055a239819c169bdfec82748dfddad')
+vk_session = vk_api.VkApi(token=***)
 longpoll = VkBotLongPoll(vk_session, 202973017)
 vk = vk_session.get_api()
 
